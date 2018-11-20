@@ -311,6 +311,143 @@ class TestUpdateGroup(object):
         return factories.Group(authority='example.com')
 
 
+@pytest.mark.usefixtures('create',
+                         'CreateGroupAPISchema',
+                         'group_service',
+                         'group_update_service',
+                         'GroupContext',
+                         'GroupJSONPresenter',)
+class TestUpsertGroup(object):
+
+    def test_it_proxies_to_create_if_group_empty(self, pyramid_request, create):
+        empty_group_context = mock.Mock()
+        empty_group_context.group = None
+
+        res = views.upsert(empty_group_context, pyramid_request)
+
+        create.assert_called_once_with(pyramid_request)
+        assert res == create.return_value
+
+    def test_it_does_not_proxy_to_create_if_group_extant(self, pyramid_request, create, group):
+        group_context = mock.Mock()
+        group_context.group = group
+
+        views.upsert(group_context, pyramid_request)
+
+        assert create.call_count == 0
+
+    def test_it_validates_against_group_update_schema_if_group_extant(self,
+                                                                      pyramid_request,
+                                                                      create,
+                                                                      group,
+                                                                      CreateGroupAPISchema):
+        group_context = mock.Mock()
+        group_context.group = group
+        pyramid_request.json_body = {
+            'name': 'Rename Group'
+        }
+
+        views.upsert(group_context, pyramid_request)
+
+        CreateGroupAPISchema.return_value.validate.assert_called_once_with({
+            'name': 'Rename Group'
+        })
+
+    def test_it_raises_ConflictError_on_duplicate(self,
+                                                  pyramid_request,
+                                                  group_service,
+                                                  factories,
+                                                  CreateGroupAPISchema):
+
+        pre_existing_group = factories.Group(authority_provided_id='something', authority='example.com')
+        group = factories.Group(authority_provided_id='something_else', authority='example.com')
+
+        group_context = mock.Mock()
+        group_context.group = group
+
+        group_service.fetch.return_value = pre_existing_group
+
+        with pytest.raises(ConflictError, match="group with groupid.*already exists"):
+            views.upsert(group_context, pyramid_request)
+
+    def test_it_does_not_raise_ConflictError_if_duplicate_is_same_group(self,
+                                                                        pyramid_request,
+                                                                        group_service,
+                                                                        factories):
+        group_context = mock.Mock()
+        group = factories.Group(authority_provided_id='something_else', authority='example.com')
+        group_context.group = group
+        group_service.fetch.return_value = group
+
+        views.upsert(group_context, pyramid_request)
+
+    def test_it_proxies_to_update_service_with_injected_defaults(self,
+                                                                 pyramid_request,
+                                                                 group_service,
+                                                                 group_update_service,
+                                                                 CreateGroupAPISchema,
+                                                                 group):
+        group_context = mock.Mock()
+        group_context.group = group
+
+        CreateGroupAPISchema.return_value.validate.return_value = {
+            'name': 'Dingdong'
+        }
+
+        views.upsert(group_context, pyramid_request)
+
+        group_update_service.update.assert_called_once_with(group, **{
+            'name': 'Dingdong',
+            'description': '',
+            'groupid': None,
+        })
+
+    def test_it_creates_group_context_from_updated_group(self,
+                                                         pyramid_request,
+                                                         GroupContext,
+                                                         group_update_service,
+                                                         group):
+        group_context = mock.Mock()
+        group_context.group = group
+        group_update_service.update.return_value = group
+
+        views.upsert(group_context, pyramid_request)
+
+        GroupContext.assert_called_with(group, pyramid_request)
+
+    def test_it_returns_updated_group_formatted_with_presenter(self,
+                                                               pyramid_request,
+                                                               GroupContext,
+                                                               GroupJSONPresenter,
+                                                               group):
+        group_context = mock.Mock()
+        group_context.group = group
+        views.upsert(group_context, pyramid_request)
+
+        GroupJSONPresenter.assert_called_once_with(GroupContext.return_value)
+        GroupJSONPresenter.return_value.asdict.assert_called_once_with(expand=['organization'])
+
+    @pytest.fixture
+    def create(self, patch):
+        return patch('h.views.api.groups.create')
+
+    @pytest.fixture
+    def group_user(self, factories):
+        return factories.User()
+
+    @pytest.fixture
+    def group(self, factories, group_user):
+        return factories.Group(creator=group_user)
+
+    @pytest.fixture
+    def pyramid_request(self, pyramid_request, factories):
+        # Add a nominal json_body so that _json_payload() parsing of
+        # it doesn't raise
+        pyramid_request.json_body = {}
+        # pyramid_request.user = factories.User()
+        return pyramid_request
+
+
 @pytest.mark.usefixtures('group_members_service',
                          'user_service')
 class TestAddMember(object):
