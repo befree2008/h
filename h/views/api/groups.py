@@ -109,6 +109,7 @@ def upsert(context, request):
     Otherwise, replace the existing group's resource properties entirely and update
     the object.
 
+    :arg context:
     :type context: h.traversal.contexts.GroupUpsertContext
     """
     if context.group is None:
