@@ -43,6 +43,7 @@ class OAuthAuthorizeController(object):
         this will skip the users' confirmation and create an authorization
         code and deliver it to the client application.
         """
+
         return self._authorize()
 
     @view_config(request_method='GET',
@@ -58,6 +59,9 @@ class OAuthAuthorizeController(object):
 
         .. _draft-sakimura-oauth: https://tools.ietf.org/html/draft-sakimura-oauth-wmrm-00
         """
+        print('-'*100)
+        print(self.request)
+        print('-'*100)
         response = self._authorize()
 
         if isinstance(response, HTTPFound):
@@ -104,7 +108,11 @@ class OAuthAuthorizeController(object):
         return {'description': description}
 
     def _authorize(self):
+        print(self.request.url)
         scopes, credentials = self.oauth.validate_authorization_request(self.request.url)
+        print(scopes)
+        print(credentials)
+        print(self.request.authenticated_userid)
 
         if self.request.authenticated_userid is None:
             raise HTTPFound(self.request.route_url('login', _query={

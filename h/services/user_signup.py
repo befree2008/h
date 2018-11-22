@@ -71,6 +71,7 @@ class UserSignupService(object):
         # Add identity relations to this new user, if provided
         user.identities = [UserIdentity(user=user, **i_args) for i_args in identities]
 
+
         self.session.add(user)
 
         if password is not None:
@@ -85,6 +86,7 @@ class UserSignupService(object):
         # (at least from the perspective of the database).
         sub = Subscriptions(uri=user.userid, type='reply', active=True)
         self.session.add(sub)
+        
 
         # Record a registration with the stats service
         if self.stats is not None:

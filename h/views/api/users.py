@@ -32,6 +32,8 @@ def create(request):
                              authority
     :raises ConflictError:   if user already exists
     """
+    print(request)
+    print(request.json_body)
     client_authority_ = client_authority(request)
     schema = CreateUserAPISchema()
     appstruct = schema.validate(_json_payload(request))

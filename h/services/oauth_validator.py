@@ -43,6 +43,7 @@ class OAuthValidatorService(RequestValidator):
         """Authenticates a client, returns True if the client exists and its secret matches the request."""
         client = self.find_client(request.client_id)
 
+
         if client is None:
             return False
 
