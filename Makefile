@@ -87,11 +87,12 @@ run-docker:
 		-e "BROKER_URL=amqp://guest:guest@rabbit:5672//" \
 		-e "DATABASE_URL=postgresql://postgres@postgres/postgres" \
 		-e "ELASTICSEARCH_URL=http://elasticsearch:9200" \
-		-e "NEW_RELIC_APP_NAME=h (dev)" \
-		-e "NEW_RELIC_LICENSE_KEY" \
 		-e "SECRET_KEY=notaixpaperasecret" \
 		-p 5000:5000 \
 		hypothesis/hypothesis:$(DOCKER_TAG)
+		#-e "NEW_RELIC_APP_NAME=h (dev)" \
+		#-e "NEW_RELIC_LICENSE_KEY" \
+	
 
 .PHONY: clean
 clean:
