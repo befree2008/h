@@ -88,6 +88,7 @@ run-docker:
 		-e "DATABASE_URL=postgresql://postgres@postgres/postgres" \
 		-e "ELASTICSEARCH_URL=http://elasticsearch:9200" \
 		-e "SECRET_KEY=notaixpaperasecret" \
+		-e "CLIENT_URL=http://static.aixpaper.com/hypothesis" \
 		-p 5000:5000 \
 		hypothesis/hypothesis:$(DOCKER_TAG)
 		#-e "NEW_RELIC_APP_NAME=h (dev)" \
