@@ -29,7 +29,11 @@ TICKET_POLICY = pyramid_authsanity.AuthServicePolicy()
 TOKEN_POLICY = TokenAuthenticationPolicy(callback=groupfinder)
 AUTH_CLIENT_POLICY = AuthClientPolicy()
 
-API_POLICY = APIAuthenticationPolicy(user_policy=TOKEN_POLICY,
+
+# 让api访问时候，使用ticket验证， 11-23
+# API_POLICY = APIAuthenticationPolicy(user_policy=TOKEN_POLICY,
+#                                      client_policy=AUTH_CLIENT_POLICY)
+API_POLICY = APIAuthenticationPolicy(user_policy=TICKET_POLICY,
                                      client_policy=AUTH_CLIENT_POLICY)
 
 DEFAULT_POLICY = AuthenticationPolicy(api_policy=API_POLICY,

@@ -34,6 +34,8 @@ from h._compat import urlparse
 
 _ = i18n.TranslationString
 
+import logging
+log = logging.getLogger("h")
 
 # A little helper to ensure that session data is returned in every ajax
 # response payload.

@@ -11,6 +11,23 @@ from h.services.user_unique import DuplicateUserError
 from h.util.view import json_view
 
 
+# add by wliang below
+import datetime
+import pdb 
+from pyramid import security
+import pyramid_authsanity
+
+from h import i18n
+from h.exceptions import APIError
+from h.services.user import UserNotActivated
+from h.accounts.events import LoginEvent
+
+_ = i18n.TranslationString
+import logging
+log = logging.getLogger("h")
+# add by wliang above
+
+
 @json_view(route_name='api.users',
            request_method='POST',
            permission='create')
@@ -32,8 +49,7 @@ def create(request):
                              authority
     :raises ConflictError:   if user already exists
     """
-    print(request)
-    print(request.json_body)
+
     client_authority_ = client_authority(request)
     schema = CreateUserAPISchema()
     appstruct = schema.validate(_json_payload(request))
@@ -89,3 +105,48 @@ def _json_payload(request):
         return request.json_body
     except ValueError:
         raise PayloadError()
+
+# add by wliang 11-22
+@json_view(route_name='api.login',
+           request_method='POST',
+           )
+def login(request):
+    """
+    User Login
+
+    :raises ValidationError: if ``authority`` param does not match client
+                             authority
+    :raises ConflictError:   if user already exists
+    """
+    username = request.json_body['username']
+    password = request.json_body['password']
+
+    user_service = request.find_service(name='user')
+    user_password_service = request.find_service(name='user_password')
+
+    try:
+        user = user_service.fetch_for_login(username_or_email=username)
+    except UserNotActivated:
+        err = _("Please check your email and open the link "
+                            "to activate your account.")
+        raise APIError(err)
+
+    if user is None or not user_password_service.check_password(user, password):
+        err = _('User does not exist.')
+        raise APIError(err)
+
+
+    # copy from AuthController._login
+    user.last_login_date = datetime.datetime.utcnow()
+    request.registry.notify(LoginEvent(request, user))
+ 
+    ticket_policy = pyramid_authsanity.AuthServicePolicy()
+    headers =  ticket_policy.remember(request, user.userid)
+    log.info(headers)
+
+    #https://stackoverflow.com/questions/14925652
+    request.response.headerlist.extend(headers)
+    log.info('-'*100)
+    log.info(request.response)
+
+    return { 'successful': True, 'message': 'auth OK'}

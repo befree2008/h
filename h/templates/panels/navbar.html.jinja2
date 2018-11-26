@@ -27,7 +27,7 @@
     {{ lozenge('','') }}
   </template>
   <div class="nav-bar__content">
-    <a href="https://web.hypothes.is/" title="Hypothesis homepage" class="nav-bar__logo-container"><!--
+    <a href="http://www.aixpaper.com" title="Hypothesis homepage" class="nav-bar__logo-container"><!--
       !-->{{ svg_icon('logo', 'nav-bar__logo') }}</a>
 
     <div class="nav-bar__search js-search-bar" data-ref="searchBar">
@@ -79,12 +79,14 @@
         </a>
       </span>
       <span class="nav-bar-links__item">
+      {# del by wliang 11-23
       {% call dropdown_menu(groups_menu_items,
                             link_class='nav-bar-links__link',
                             title='Groups',
                             footer_item=create_group_item) %}
         Groups <span class="nav-bar-links__dropdown-arrow">▾</span>
       {% endcall %}
+      #}
       </span>
       <span class="nav-bar-links__item">
       {% call dropdown_menu(settings_menu_items,
@@ -97,10 +99,16 @@
       {% endcall %}
       </span>
       {% else %}
+      {#
       <a class="nav-bar-links__item nav-bar-links__link"
          href="{{ request.route_url('login') }}">Log in</a>
       <a class="nav-bar-links__item nav-bar-links__link"
          href="{{ request.route_url('signup') }}">Sign up</a>
+         #}
+      <a class="nav-bar-links__item nav-bar-links__link"
+         href="http://www.aixpaper.com">Log in</a>
+      <a class="nav-bar-links__item nav-bar-links__link"
+         href="http://www.aixpaper.com">Sign up</a>
       {% endif %}
     </nav>
   </div>

@@ -54,10 +54,13 @@ def navbar(context, request, search=None, opts=None):
 
     return {
         'settings_menu_items': [
-            {'title': _('Account details'), 'link': request.route_url('account')},
-            {'title': _('Edit profile'), 'link': request.route_url('account_profile')},
-            {'title': _('Notifications'), 'link': request.route_url('account_notifications')},
-            {'title': _('Developer'), 'link': request.route_url('account_developer')},
+
+            # 暂时都注释，navbar的模板头部也有注释，先去掉这些功能入口
+            # {'title': _('Account details'), 'link': request.route_url('account')},
+            # {'title': _('Edit profile'), 'link': request.route_url('account_profile')},
+            # {'title': _('Notifications'), 'link': request.route_url('account_notifications')},
+            # {'title': _('Developer'), 'link': request.route_url('account_developer')},
+
         ],
         'signout_item': {'title': _('Sign out'), 'link': request.route_url('logout')},
         'groups_menu_items': groups_menu_items,

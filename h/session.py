@@ -32,6 +32,7 @@ def profile(request, authority=None):
         authority = user.authority
     else:
         authority = authority or request.default_authority
+    
 
     profile = {}
     profile['userid'] = request.authenticated_userid

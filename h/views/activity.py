@@ -367,9 +367,10 @@ class UserSearchController(SearchController):
             'orcid': self.user.orcid,
         }
 
-        if self.request.user == self.user:
-            result['user']['edit_url'] = self.request.route_url(
-                'account_profile')
+        # mod by wliang 11-23
+        # if self.request.user == self.user:
+        #     result['user']['edit_url'] = self.request.route_url(
+        #         'account_profile')
 
         if not result.get('q'):
             if self.request.user == self.user:

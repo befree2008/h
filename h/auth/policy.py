@@ -336,11 +336,16 @@ class TokenAuthenticationPolicy(CallbackAuthenticationPolicy):
         :returns: the userid authenticated for the passed request or None
         :rtype: unicode or None
         """
+        if request.path.startswith('/api/prof'):
+            print(request.path)
         token_str = None
         if _is_ws_request(request):
             token_str = request.GET.get('access_token', None)
         if token_str is None:
             token_str = getattr(request, 'auth_token', None)
+
+        if request.path.startswith('/api/prof'):
+            print('token:', token_str)
 
         if token_str is None:
             return None
@@ -370,8 +375,13 @@ def _is_client_request(request):
 
     :rtype: bool
     """
+
     if request.matched_route:
         return (request.matched_route.name, request.method) in AUTH_CLIENT_API_WHITELIST
+
+    import pprint
+    pprint.pprint([x  for x in request.headers.items()])
+    
     return False
 
 

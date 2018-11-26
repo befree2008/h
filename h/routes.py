@@ -136,6 +136,8 @@ def includeme(config):
     config.add_route('token', '/api/token')
     config.add_route('oauth_authorize', '/oauth/authorize')
     config.add_route('oauth_revoke', '/oauth/revoke')
+    # add by wliang 11-22
+    config.add_route('api.login', '/api/login')
 
     # Client
     config.add_route('sidebar_app', '/app.html')
