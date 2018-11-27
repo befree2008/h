@@ -139,6 +139,7 @@ class AuthController(object):
 
         user = appstruct['user']
         headers = self._login(user)
+        print(headers)
         return httpexceptions.HTTPFound(location=self._login_redirect(),
                                         headers=headers)
 
